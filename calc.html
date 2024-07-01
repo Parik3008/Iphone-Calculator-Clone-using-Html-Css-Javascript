@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            margin: 0;
+        }
+
+        .calculator {
+            width: 320px;
+            background-color: #000;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+        }
+
+        .display {
+            height: 100px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background-color: #333;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .display-text {
+            font-size: 48px;
+            color: white;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+            height: 60px;
+            background-color: #666;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 24px;
+        }
+
+        .btn.gray {
+            background-color: #a6a6a6;
+            color: black;
+        }
+
+        .btn.orange {
+            background-color: #ff9500;
+            color: white;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display">
+            <div class="display-text" id="display">0</div>
+        </div>
+        <div class="buttons">
+            <button class="btn gray" onclick="clearDisplay()">AC</button>
+            <button class="btn gray" onclick="toggleSign()">±</button>
+            <button class="btn gray" onclick="percentage()">%</button>
+            <button class="btn orange" onclick="operator('/')">÷</button>
+
+            <button class="btn" onclick="appendNumber(7)">7</button>
+            <button class="btn" onclick="appendNumber(8)">8</button>
+            <button class="btn" onclick="appendNumber(9)">9</button>
+            <button class="btn orange" onclick="operator('*')">×</button>
+
+            <button class="btn" onclick="appendNumber(4)">4</button>
+            <button class="btn" onclick="appendNumber(5)">5</button>
+            <button class="btn" onclick="appendNumber(6)">6</button>
+            <button class="btn orange" onclick="operator('-')">−</button>
+
+            <button class="btn" onclick="appendNumber(1)">1</button>
+            <button class="btn" onclick="appendNumber(2)">2</button>
+            <button class="btn" onclick="appendNumber(3)">3</button>
+            <button class="btn orange" onclick="operator('+')">+</button>
+
+            <button class="btn" onclick="appendNumber(0)">0</button>
+            <button class="btn" onclick="appendNumber('.')">.</button>
+            <button class="btn orange" id="equal" onclick="calculate()">=</button>
+        </div>
+    </div>
+    <script>
+        let display = document.getElementById('display');
+        let currentValue = '0';
+        let operatorValue = '';
+        let firstValue = '';
+        let isOperatorPressed = false;
+
+        function clearDisplay() {
+            currentValue = '0';
+            operatorValue = '';
+            firstValue = '';
+            isOperatorPressed = false;
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            if (currentValue !== '0') {
+                currentValue = (parseFloat(currentValue) * -1).toString();
+                updateDisplay();
+            }
+        }
+
+        function percentage() {
+            currentValue = (parseFloat(currentValue) / 100).toString();
+            updateDisplay();
+        }
+
+        function operator(op) {
+            if (isOperatorPressed) {
+                calculate();
+            }
+            firstValue = currentValue;
+            operatorValue = op;
+            isOperatorPressed = true;
+            currentValue = '0';
+        }
+
+        function appendNumber(num) {
+            if (currentValue === '0' && num !== '.') {
+                currentValue = num.toString();
+            } else {
+                currentValue += num.toString();
+            }
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            display.textContent = currentValue.length > 10 ? parseFloat(currentValue).toPrecision(5) : currentValue;
+        }
+
+        function calculate() {
+            if (operatorValue && isOperatorPressed) {
+                let result = 0;
+                let num1 = parseFloat(firstValue);
+                let num2 = parseFloat(currentValue);
+
+                switch (operatorValue) {
+                    case '+':
+                        result = num1 + num2;
+                        break;
+                    case '-':
+                        result = num1 - num2;
+                        break;
+                    case '*':
+                        result = num1 * num2;
+                        break;
+                    case '/':
+                        result = num1 / num2;
+                        break;
+                    default:
+                        return;
+                }
+
+                currentValue = result.toString();
+                operatorValue = '';
+                firstValue = '';
+                isOperatorPressed = false;
+                updateDisplay();
+            }
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key >= 0 && event.key <= 9) {
+                appendNumber(event.key);
+            } else if (event.key === '.') {
+                appendNumber(event.key);
+            } else if (event.key === '+' || event.key === '-' || event.key === '*' || event.key === '/') {
+                operator(event.key);
+            } else if (event.key === 'Enter' || event.key === '=') {
+                calculate();
+            } else if (event.key === 'Backspace') {
+                currentValue = currentValue.slice(0, -1) || '0';
+                updateDisplay();
+            } else if (event.key.toLowerCase() === 'c') {
+                clearDisplay();
+            }
+        });
+    </script>
+</body>
+</html>
